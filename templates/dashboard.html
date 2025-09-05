@@ -1,0 +1,245 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - Certificate Verification System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+        <p class="text-muted">Welcome back, {{ current_user.username }}!</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-certificate fa-2x mb-2"></i>
+                <h4>{{ certificates|length }}</h4>
+                <small>{{ 'Certificates Issued' if current_user.role == 'admin' else 'Your Certificates' if current_user.role == 'student' else 'Certificates' }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <h4>{{ verifications|length }}</h4>
+                <small>{{ 'Total Verifications' if current_user.role == 'admin' else 'Your Verifications' }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info">
+            <div class="card-body text-center">
+                <i class="fas fa-cube fa-2x mb-2"></i>
+                <h4>{{ blockchain_info.total_blocks }}</h4>
+                <small>Blockchain Blocks</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h4>{{ recent_verifications|length }}</h4>
+                <small>Recent Activity</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Blockchain Info -->
+{% if blockchain_info.last_block_hash %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-link me-2"></i>Blockchain Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Last Block Hash:</strong><br>
+                        <code class="small">{{ blockchain_info.last_block_hash }}</code>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Last Block Time:</strong><br>
+                        {{ blockchain_info.last_block_time.strftime('%Y-%m-%d %H:%M:%S') if blockchain_info.last_block_time else 'N/A' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Main Content Tabs -->
+<div class="row">
+    <div class="col-12">
+        <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+            {% if current_user.role == 'admin' or current_user.role == 'student' %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="certificates-tab" data-bs-toggle="tab" data-bs-target="#certificates" type="button" role="tab">
+                    <i class="fas fa-certificate me-1"></i>Certificates
+                </button>
+            </li>
+            {% endif %}
+            
+            {% if current_user.role == 'admin' or current_user.role == 'recruiter' %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {{ 'active' if current_user.role == 'recruiter' else '' }}" id="verifications-tab" data-bs-toggle="tab" data-bs-target="#verifications" type="button" role="tab">
+                    <i class="fas fa-check-circle me-1"></i>Verifications
+                </button>
+            </li>
+            {% endif %}
+        </ul>
+        
+        <div class="tab-content" id="dashboardTabsContent">
+            <!-- Certificates Tab -->
+            {% if current_user.role == 'admin' or current_user.role == 'student' %}
+            <div class="tab-pane fade show active" id="certificates" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ 'All Certificates' if current_user.role == 'admin' else 'Your Certificates' }}</h5>
+                        {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('upload_certificate') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>Upload Certificate
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if certificates %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Certificate ID</th>
+                                            <th>Title</th>
+                                            <th>Student</th>
+                                            <th>Institution</th>
+                                            <th>Issue Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for cert in certificates %}
+                                        <tr>
+                                            <td><code>{{ cert.certificate_id }}</code></td>
+                                            <td>{{ cert.title }}</td>
+                                            <td>{{ cert.student_name }}</td>
+                                            <td>{{ cert.institution }}</td>
+                                            <td>{{ cert.issue_date.strftime('%Y-%m-%d') }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if cert.status == 'issued' else 'warning' if cert.status == 'revoked' else 'secondary' }}">
+                                                    {{ cert.status.title() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('certificate_detail', cert_id=cert.certificate_id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if current_user.role == 'admin' and cert.status != 'revoked' %}
+                                                <a href="{{ url_for('revoke_certificate', cert_id=cert.certificate_id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to revoke this certificate?')">
+                                                    <i class="fas fa-ban"></i>
+                                                </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-certificate fa-3x text-muted mb-3"></i>
+                                <h5>No certificates found</h5>
+                                <p class="text-muted">
+                                    {% if current_user.role == 'admin' %}
+                                        Start by uploading your first certificate.
+                                    {% else %}
+                                        No certificates have been issued for your email address.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Verifications Tab -->
+            {% if current_user.role == 'admin' or current_user.role == 'recruiter' %}
+            <div class="tab-pane fade {{ 'show active' if current_user.role == 'recruiter' else '' }}" id="verifications" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Verification History</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if verifications %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Certificate ID</th>
+                                            <th>Method</th>
+                                            <th>Result</th>
+                                            <th>Verifier</th>
+                                            <th>Date</th>
+                                            <th>IP Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for verification in verifications %}
+                                        <tr>
+                                            <td>
+                                                {% if verification.certificate %}
+                                                <code>{{ verification.certificate.certificate_id }}</code>
+                                                {% else %}
+                                                <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    {{ verification.verification_method.replace('_', ' ').title() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if verification.verification_result == 'valid' else 'danger' if verification.verification_result == 'invalid' else 'warning' }}">
+                                                    {{ verification.verification_result.title() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if verification.verifier %}
+                                                {{ verification.verifier.username }}
+                                                {% else %}
+                                                <span class="text-muted">Anonymous</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ verification.verified_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                            <td><code>{{ verification.ip_address }}</code></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h5>No verifications found</h5>
+                                <p class="text-muted">Verification history will appear here.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

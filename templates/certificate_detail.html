@@ -1,0 +1,243 @@
+{% extends "layout.html" %}
+
+{% block title %}Certificate Details - {{ certificate.certificate_id }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-certificate me-2"></i>Certificate Details</h2>
+            <div>
+                {% if current_user.role == 'admin' and certificate.status != 'revoked' %}
+                <a href="{{ url_for('revoke_certificate', cert_id=certificate.certificate_id) }}" class="btn btn-danger btn-sm me-2" onclick="return confirm('Are you sure you want to revoke this certificate?')">
+                    <i class="fas fa-ban me-1"></i>Revoke
+                </a>
+                {% endif %}
+                {% if current_user.role == 'admin' or current_user.email == certificate.student_email %}
+                <a href="{{ url_for('download_certificate', cert_id=certificate.certificate_id) }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-download me-1"></i>Download
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Certificate Information -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Certificate Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Certificate ID:</strong></td>
+                                <td><code>{{ certificate.certificate_id }}</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Title:</strong></td>
+                                <td>{{ certificate.title }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Student Name:</strong></td>
+                                <td>{{ certificate.student_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Student Email:</strong></td>
+                                <td>{{ certificate.student_email }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Institution:</strong></td>
+                                <td>{{ certificate.institution }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Issue Date:</strong></td>
+                                <td>{{ certificate.issue_date.strftime('%B %d, %Y') }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if certificate.status == 'issued' else 'warning' if certificate.status == 'revoked' else 'secondary' }}">
+                                        {{ certificate.status.title() }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Issued By:</strong></td>
+                                <td>{{ certificate.issuer.username }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Created At:</strong></td>
+                                <td>{{ certificate.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Hash:</strong></td>
+                                <td><code class="small">{{ certificate.file_hash[:20] }}...</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Blockchain Hash:</strong></td>
+                                <td><code class="small">{{ certificate.blockchain_hash[:20] }}...</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Previous Hash:</strong></td>
+                                <td><code class="small">{{ certificate.previous_hash[:20] if certificate.previous_hash != '0' else 'Genesis' }}...</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blockchain Verification -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-link me-2"></i>Blockchain Verification</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This certificate is secured using cryptographic hashing and blockchain technology. 
+                            The blockchain hash ensures the integrity and authenticity of the certificate.
+                        </div>
+                        
+                        <h6>Hash Chain Verification:</h6>
+                        <div class="blockchain-chain">
+                            <div class="chain-block">
+                                <div class="block-header">Previous Block</div>
+                                <div class="block-hash">{{ certificate.previous_hash[:10] if certificate.previous_hash != '0' else 'Genesis' }}...</div>
+                            </div>
+                            <i class="fas fa-arrow-right chain-arrow"></i>
+                            <div class="chain-block current">
+                                <div class="block-header">Current Certificate</div>
+                                <div class="block-hash">{{ certificate.blockchain_hash[:10] }}...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code and Actions -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-qrcode me-2"></i>QR Code</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ url_for('serve_qr_code', cert_id=certificate.certificate_id) }}" 
+                     alt="QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+                <p class="text-muted small">Scan this QR code to quickly verify the certificate</p>
+                <button class="btn btn-outline-secondary btn-sm" onclick="downloadQR()">
+                    <i class="fas fa-download me-1"></i>Download QR Code
+                </button>
+            </div>
+        </div>
+
+        <!-- Verification Statistics -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar me-2"></i>Verification Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <h3 class="text-primary">{{ verifications|length }}</h3>
+                    <p class="text-muted">Total Verifications</p>
+                </div>
+                
+                {% if verifications %}
+                <div class="mt-3">
+                    <h6>Recent Verifications:</h6>
+                    {% for verification in verifications[:5] %}
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <span class="badge bg-{{ 'success' if verification.verification_result == 'valid' else 'danger' }}">
+                                {{ verification.verification_result.title() }}
+                            </span>
+                        </div>
+                        <small class="text-muted">{{ verification.verified_at.strftime('%m/%d %H:%M') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification History -->
+{% if verifications %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history me-2"></i>Verification History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Result</th>
+                                <th>Verifier</th>
+                                <th>IP Address</th>
+                                <th>User Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for verification in verifications %}
+                            <tr>
+                                <td>{{ verification.verified_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ verification.verification_method.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if verification.verification_result == 'valid' else 'danger' if verification.verification_result == 'invalid' else 'warning' }}">
+                                        {{ verification.verification_result.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if verification.verifier %}
+                                    {{ verification.verifier.username }}
+                                    {% else %}
+                                    <span class="text-muted">Anonymous</span>
+                                    {% endif %}
+                                </td>
+                                <td><code>{{ verification.ip_address }}</code></td>
+                                <td class="small">{{ verification.user_agent[:50] }}...</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function downloadQR() {
+    const link = document.createElement('a');
+    link.href = '{{ url_for("serve_qr_code", cert_id=certificate.certificate_id) }}';
+    link.download = 'certificate_{{ certificate.certificate_id }}_qr.png';
+    link.click();
+}
+</script>
+{% endblock %}

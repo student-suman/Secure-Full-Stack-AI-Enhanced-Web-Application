@@ -1,0 +1,168 @@
+{% extends "layout.html" %}
+
+{% block title %}Verify Certificate - Certificate Verification System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-search me-2"></i>Verify Certificate</h4>
+            </div>
+            <div class="card-body">
+                <!-- Verification Methods -->
+                <ul class="nav nav-pills mb-4" id="verificationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="manual-tab" data-bs-toggle="pill" data-bs-target="#manual" type="button" role="tab">
+                            <i class="fas fa-keyboard me-1"></i>Manual Entry
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="qr-tab" data-bs-toggle="pill" data-bs-target="#qr" type="button" role="tab">
+                            <i class="fas fa-qrcode me-1"></i>QR Scanner
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="verificationTabsContent">
+                    <!-- Manual Entry Tab -->
+                    <div class="tab-pane fade show active" id="manual" role="tabpanel">
+                        <form method="POST">
+                            <input type="hidden" name="method" value="manual_id">
+                            <div class="mb-3">
+                                <label for="certificate_id" class="form-label">Certificate ID</label>
+                                <input type="text" class="form-control" id="certificate_id" name="certificate_id" 
+                                       placeholder="Enter certificate ID (e.g., ABCD1234EFGH5678)" required>
+                                <div class="form-text">Enter the unique certificate ID to verify its authenticity.</div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Verify Certificate
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- QR Scanner Tab -->
+                    <div class="tab-pane fade" id="qr" role="tabpanel">
+                        <div class="text-center">
+                            <div id="qr-reader" style="width: 100%;"></div>
+                            <div id="qr-status" class="mt-3">
+                                <button type="button" class="btn btn-success" id="startScan">
+                                    <i class="fas fa-camera me-1"></i>Start QR Scanner
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Result -->
+        {% if result %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-check-circle me-2"></i>Verification Result</h5>
+            </div>
+            <div class="card-body">
+                {% if result == 'valid' %}
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Certificate is Valid!</h5>
+                            <p class="mb-0">This certificate is authentic and has not been tampered with.</p>
+                        </div>
+                    </div>
+                    
+                    {% if certificate %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-certificate me-1"></i>Certificate Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>ID:</strong></td>
+                                    <td><code>{{ certificate.certificate_id }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Title:</strong></td>
+                                    <td>{{ certificate.title }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Student:</strong></td>
+                                    <td>{{ certificate.student_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Institution:</strong></td>
+                                    <td>{{ certificate.institution }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Issue Date:</strong></td>
+                                    <td>{{ certificate.issue_date.strftime('%B %d, %Y') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-link me-1"></i>Blockchain Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Blockchain Hash:</strong></td>
+                                    <td><code class="small">{{ certificate.blockchain_hash[:20] }}...</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>File Hash:</strong></td>
+                                    <td><code class="small">{{ certificate.file_hash[:20] }}...</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td><span class="badge bg-success">{{ certificate.status.title() }}</span></td>
+                                </tr>
+                            </table>
+                            
+                            <div class="mt-3">
+                                <a href="{{ url_for('certificate_detail', cert_id=certificate.certificate_id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Full Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                {% elif result == 'revoked' %}
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Certificate Revoked</h5>
+                            <p class="mb-0">This certificate has been revoked and is no longer valid.</p>
+                        </div>
+                    </div>
+                    
+                {% elif result == 'tampered' %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-times-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Certificate Tampered</h5>
+                            <p class="mb-0">The certificate file has been modified and cannot be trusted.</p>
+                        </div>
+                    </div>
+                    
+                {% else %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-times-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Certificate Not Found</h5>
+                            <p class="mb-0">No certificate found with the provided ID.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/qr-scanner.js') }}"></script>
+{% endblock %}

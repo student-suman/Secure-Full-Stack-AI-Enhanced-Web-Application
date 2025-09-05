@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block title %}Upload Certificate - Certificate Verification System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-upload me-2"></i>Upload Certificate</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Certificate Title</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="institution" class="form-label">Institution</label>
+                                <input type="text" class="form-control" id="institution" name="institution" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="student_name" class="form-label">Student Name</label>
+                                <input type="text" class="form-control" id="student_name" name="student_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="student_email" class="form-label">Student Email</label>
+                                <input type="email" class="form-control" id="student_email" name="student_email" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="issue_date" class="form-label">Issue Date</label>
+                        <input type="date" class="form-control" id="issue_date" name="issue_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="certificate_file" class="form-label">Certificate File</label>
+                        <div class="dropzone" id="dropzone">
+                            <div class="dropzone-content text-center py-4">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                <h5>Drag and drop your certificate file here</h5>
+                                <p class="text-muted">or click to browse</p>
+                                <input type="file" class="form-control" id="certificate_file" name="certificate_file" 
+                                       accept=".pdf,.png,.jpg,.jpeg,.gif" required style="display: none;">
+                            </div>
+                            <div class="file-preview" id="filePreview" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file fa-2x me-3"></i>
+                                    <div>
+                                        <div class="file-name"></div>
+                                        <div class="file-size text-muted"></div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-auto" onclick="removeFile()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">
+                            Supported formats: PDF, PNG, JPG, JPEG, GIF (Max size: 16MB)
+                        </small>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-upload me-1"></i>Upload Certificate
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Processing Modal -->
+        <div class="modal fade" id="processingModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center py-4">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h5>Processing Certificate</h5>
+                        <p class="text-muted">Generating cryptographic hash and QR code...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('certificate_file');
+    const filePreview = document.getElementById('filePreview');
+    const dropzoneContent = dropzone.querySelector('.dropzone-content');
+    const form = document.getElementById('uploadForm');
+    const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+
+    // Dropzone click handler
+    dropzone.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    // File input change handler
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            showFilePreview(this.files[0]);
+        }
+    });
+
+    // Drag and drop handlers
+    dropzone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFilePreview(files[0]);
+        }
+    });
+
+    // Form submit handler
+    form.addEventListener('submit', function() {
+        processingModal.show();
+    });
+
+    function showFilePreview(file) {
+        const fileName = filePreview.querySelector('.file-name');
+        const fileSize = filePreview.querySelector('.file-size');
+        
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        
+        dropzoneContent.style.display = 'none';
+        filePreview.style.display = 'block';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    window.removeFile = function() {
+        fileInput.value = '';
+        dropzoneContent.style.display = 'block';
+        filePreview.style.display = 'none';
+    };
+});
+</script>
+{% endblock %}

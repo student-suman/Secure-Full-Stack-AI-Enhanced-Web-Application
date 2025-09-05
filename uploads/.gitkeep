@@ -1,0 +1,2 @@
+# This file ensures the uploads directory is tracked in version control
+# The uploads directory is needed for storing certificate files and QR codes

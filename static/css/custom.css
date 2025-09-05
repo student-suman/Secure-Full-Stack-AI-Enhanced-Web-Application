@@ -1,0 +1,323 @@
+/* Custom styles for Certificate Verification System */
+
+/* Dropzone styling */
+.dropzone {
+    border: 2px dashed var(--bs-border-color);
+    border-radius: 0.375rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: var(--bs-body-bg);
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.dropzone.dragover {
+    transform: scale(1.02);
+}
+
+.file-preview {
+    padding: 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    background-color: var(--bs-body-bg);
+}
+
+/* Blockchain chain visualization */
+.blockchain-chain {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.chain-block {
+    padding: 1rem;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bs-body-bg);
+    text-align: center;
+    min-width: 150px;
+}
+
+.chain-block.current {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.block-header {
+    font-weight: bold;
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.block-hash {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: var(--bs-body-color);
+    word-break: break-all;
+}
+
+.chain-arrow {
+    color: var(--bs-primary);
+    font-size: 1.5rem;
+}
+
+/* QR Scanner styling */
+#qr-reader {
+    border: 2px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--bs-dark);
+}
+
+#qr-reader video {
+    width: 100% !important;
+    height: auto !important;
+}
+
+#qr-reader canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Certificate status badges */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Hash display improvements */
+.hash-display {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.hash-short {
+    user-select: all;
+}
+
+/* Loading states */
+.btn .spinner-border-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+/* Toast container positioning */
+.toast-container {
+    z-index: 1080;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 767.98px) {
+    .blockchain-chain {
+        flex-direction: column;
+    }
+    
+    .chain-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .dropzone {
+        padding: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar,
+    .btn,
+    .alert,
+    footer,
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .container {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+}
+
+/* Dark theme enhancements */
+[data-bs-theme="dark"] .dropzone {
+    border-color: var(--bs-border-color-translucent);
+}
+
+[data-bs-theme="dark"] .dropzone:hover,
+[data-bs-theme="dark"] .dropzone.dragover {
+    border-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+[data-bs-theme="dark"] .chain-block {
+    border-color: var(--bs-border-color-translucent);
+    background-color: var(--bs-dark);
+}
+
+[data-bs-theme="dark"] .chain-block.current {
+    border-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* QR code styling */
+.qr-code-container {
+    display: inline-block;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Certificate card enhancements */
+.certificate-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.certificate-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Statistics cards */
+.stats-card {
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+.stats-card i {
+    opacity: 0.8;
+}
+
+/* Form enhancements */
+.form-floating .form-control:focus ~ label,
+.form-floating .form-control:not(:placeholder-shown) ~ label {
+    opacity: 0.65;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* Button loading state */
+.btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Verification result animations */
+.verification-result {
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Progress indicators */
+.progress {
+    height: 0.5rem;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Enhanced table styling */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--bs-tertiary-bg);
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bs-tertiary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-secondary-emphasis);
+}
+
+/* Focus indicators for accessibility */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    border-color: var(--bs-primary);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .card {
+        border-width: 2px;
+    }
+    
+    .btn {
+        border-width: 2px;
+    }
+    
+    .dropzone {
+        border-width: 3px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .verification-result {
+        animation: none;
+    }
+}
