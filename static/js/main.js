@@ -17,12 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Certificate ID formatter
-    const certIdInputs = document.querySelectorAll('input[name="certificate_id"]');
-    certIdInputs.forEach(function(input) {
-        input.addEventListener('input', function() {
-            this.value = this.value.toUpperCase().replace(/[^A-F0-9]/g, '');
-        });
-    });
+    // const certIdInputs = document.querySelectorAll('input[name="certificate_id"]');
+    // certIdInputs.forEach(function(input) {
+    //     input.addEventListener('input', function() {
+    //         this.value = this.value.toUpperCase().replace(/[^A-F0-9]/g, '');
+    //     });
+    // });
 
     // Form validation enhancements
     const forms = document.querySelectorAll('.needs-validation');

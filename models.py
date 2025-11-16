@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
+# --- START: New Imports for Password Reset ---
+from flask import current_app
+from itsdangerous import URLSafeTimedSerializer as Serializer
+# --- END: New Imports for Password Reset ---
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,6 +25,21 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+        
+    # --- START: New Methods for Password Reset ---
+    def get_reset_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id})
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=1800):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token, max_age=expires_sec)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
+    # --- END: New Methods for Password Reset ---
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -50,7 +69,7 @@ class Certificate(db.Model):
 
 class Verification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    certificate_id = db.Column(db.Integer, db.ForeignKey('certificate.id'), nullable=False)
+    certificate_id = db.Column(db.Integer, db.ForeignKey('certificate.id'), nullable=True)
     verifier_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     verification_method = db.Column(db.String(20), nullable=False)  # qr_scan, manual_id
     ip_address = db.Column(db.String(45), nullable=True)

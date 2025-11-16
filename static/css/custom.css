@@ -321,3 +321,153 @@
         animation: none;
     }
 }
+/* --- Modern Dashboard Stat Cards --- */
+
+/* The main card style */
+.stat-card {
+    background: #2a2f4a; /* A fallback background */
+    border: none;
+    border-radius: 15px; /* Softer corners */
+    padding: 25px;
+    margin-bottom: 20px;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Ensures content respects the border radius */
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
+}
+
+/* The hover effect! */
+.stat-card:hover {
+    transform: translateY(-10px); /* Lifts the card up */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* A more prominent shadow */
+}
+
+/* Icon styling */
+.stat-card .icon {
+    font-size: 3rem; /* 48px */
+    opacity: 0.8;
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .icon {
+    transform: scale(1.1) rotate(-10deg); /* Makes the icon bigger and tilts it */
+}
+
+/* Text styling */
+.stat-card h3 {
+    font-size: 2.5rem; /* 40px */
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-card p {
+    font-size: 1rem; /* 16px */
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* --- Gradient Backgrounds --- */
+/* You can create your own at https://cssgradient.io/ */
+
+.bg-gradient-purple {
+    background-image: linear-gradient(45deg, #845ec2, #a178d6);
+}
+
+.bg-gradient-green {
+    background-image: linear-gradient(45deg, #2c7a7b, #4fd1c5);
+}
+
+.bg-gradient-blue {
+    background-image: linear-gradient(45deg, #007bff, #00bfff);
+}
+
+.bg-gradient-gold {
+    background-image: linear-gradient(45deg, #d69e2e, #f6e05e);
+}
+.stat-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+/* The hover effect! */
+.stat-card:hover {
+    transform: translateY(-10px); /* Lifts the card up */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* A more prominent shadow */
+    background-image: linear-gradient(45deg, #000000, #434343); /* Adds a dark gradient on hover */
+}
+/* Makes the purple card a brighter purple on hover */
+.bg-gradient-purple:hover {
+    background-image: linear-gradient(45deg, #a178d6, #c392f0);
+}
+
+/* Makes the green card a brighter green on hover */
+.bg-gradient-green:hover {
+    background-image: linear-gradient(45deg, #4fd1c5, #76e8de);
+}
+
+/* Add similar rules for blue and gold */
+
+/* --- Dashboard Title Hover Effect --- */
+
+/* This sets up the smooth transition */
+h2 {
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* This creates the hover effect */
+h2:hover {
+    color: #ffffff; /* Changes the text color to pure white */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Adds a subtle white glow */
+}
+
+
+/* --- Dashboard Title Link Styling --- */
+
+.dashboard-link {
+    color: inherit; /* Makes the link inherit the color of the h2 tag */
+    text-decoration: none; /* Removes the default underline */
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.dashboard-link:hover {
+    color: #ffffff; /* Changes color to white on hover */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Adds a white glow */
+    text-decoration: none; /* Ensures no underline appears on hover */
+}
+
+/* --- Custom Logo Icon with Blue Tick --- */
+.logo-container {
+    position: relative; /* Allows child elements to be positioned relative to this container */
+    display: inline-block; /* Keeps the container size tight to its content */
+    width: 1.25em; /* Adjusts to the size of the main icon */
+    height: 1.25em; /* Adjusts to the size of the main icon */
+    margin-right: 0.5rem; /* Space between icon and text */
+    align-self: center;
+}
+
+.main-logo-icon {
+    position: absolute; /* Allows precise positioning */
+    top: 0;
+    left: 0;
+    font-size: 1.25em; /* Adjust size if needed relative to the parent font size */
+    color: var(--bs-primary); /* Example color, you can keep your original */
+}
+
+.blue-tick-icon {
+    position: absolute;
+    top: 50%; /* Start at vertical center */
+    left: 50%; /* Start at horizontal center */
+    transform: translate(-50%, -50%); /* Adjust to truly center the icon */
+    font-size: 0.7em; /* Smaller size for the tick */
+    color: #007bff; /* Bright blue color for the tick */
+}
+/* Ensure the navbar brand link inherits text styling */
+.navbar-brand {
+    display: flex; /* Aligns content (icon and text) nicely */
+    align-items: center;
+}
+
+ 

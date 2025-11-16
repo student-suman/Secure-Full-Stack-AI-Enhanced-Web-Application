@@ -5,50 +5,57 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+        <h2>
+            <a href="{{ url_for('dashboard') }}" class="dashboard-link">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </a>
+        </h2>
         <p class="text-muted">Welcome back, {{ current_user.username }}!</p>
     </div>
 </div>
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary">
-            <div class="card-body text-center">
-                <i class="fas fa-certificate fa-2x mb-2"></i>
-                <h4>{{ certificates|length }}</h4>
-                <small>{{ 'Certificates Issued' if current_user.role == 'admin' else 'Your Certificates' if current_user.role == 'student' else 'Certificates' }}</small>
+   <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-purple">
+            <div class="icon">
+                <span class="logo-container">
+                    <i class="fas fa-certificate main-logo-icon"></i>
+                    <i class="fas fa-check-circle blue-tick-icon"></i>
+                </span>
             </div>
+            <h3>{{ certificates|length }}</h3>
+            <p>{{ 'Certificates Issued' if current_user.role == 'admin' else 'Your Certificates' }}</p>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card bg-success">
-            <div class="card-body text-center">
-                <i class="fas fa-check-circle fa-2x mb-2"></i>
-                <h4>{{ verifications|length }}</h4>
-                <small>{{ 'Total Verifications' if current_user.role == 'admin' else 'Your Verifications' }}</small>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-green">
+            <div class="icon">
+                <i class="fas fa-check-circle"></i>
             </div>
+            <h3>{{ verifications|length }}</h3>
+            <p>{{ 'Total Verifications' if current_user.role == 'admin' else 'Your Verifications' }}</p>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card bg-info">
-            <div class="card-body text-center">
-                <i class="fas fa-cube fa-2x mb-2"></i>
-                <h4>{{ blockchain_info.total_blocks }}</h4>
-                <small>Blockchain Blocks</small>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-blue">
+            <div class="icon">
+                <i class="fas fa-cube"></i>
             </div>
+            <h3>{{ blockchain_info.total_blocks }}</h3>
+            <p>Blockchain Blocks</p>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card bg-warning">
-            <div class="card-body text-center">
-                <i class="fas fa-clock fa-2x mb-2"></i>
-                <h4>{{ recent_verifications|length }}</h4>
-                <small>Recent Activity</small>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-gold">
+            <div class="icon">
+                <i class="fas fa-clock"></i>
             </div>
+            <h3>{{ recent_verifications|length }}</h3>
+            <p>Recent Activity</p>
         </div>
     </div>
 </div>
@@ -107,15 +114,27 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">{{ 'All Certificates' if current_user.role == 'admin' else 'Your Certificates' }}</h5>
                         {% if current_user.role == 'admin' %}
-                        <a href="{{ url_for('upload_certificate') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus me-1"></i>Upload Certificate
-                        </a>
+                        <div>
+                            <a href="{{ url_for('upload_certificate') }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus me-1"></i>Upload Certificate
+                            </a>
+                            <!-- This is the new Bulk Upload button -->
+                            <a href="{{ url_for('bulk_upload') }}" class="btn btn-secondary btn-sm ms-2">
+                                <i class="fas fa-file-archive me-1"></i>Bulk Upload
+                            </a>
+                        </div>
                         {% endif %}
                     </div>
                     <div class="card-body">
                         {% if certificates %}
+                            <!-- This is the new Live Search bar -->
+                            <div class="mb-3">
+                                <input type="text" id="certificate-search-input" class="form-control" placeholder="Type to search certificates...">
+                            </div>
+
                             <div class="table-responsive">
-                                <table class="table table-striped">
+                                <!-- The table now has an ID -->
+                                <table class="table table-striped" id="certificate-table">
                                     <thead>
                                         <tr>
                                             <th>Certificate ID</th>
@@ -242,4 +261,32 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- This is the new script for the live search functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('certificate-search-input');
+    if (searchInput) {
+        const certificateTable = document.getElementById('certificate-table');
+        const tableRows = certificateTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        searchInput.addEventListener('keyup', function() {
+            const filter = searchInput.value.toLowerCase();
+
+            for (let i = 0; i < tableRows.length; i++) {
+                let row = tableRows[i];
+                let rowText = row.textContent || row.innerText;
+
+                if (rowText.toLowerCase().indexOf(filter) > -1) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

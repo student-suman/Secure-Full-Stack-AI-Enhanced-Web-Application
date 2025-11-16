@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}Bulk Upload Certificates{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-file-archive me-2"></i>Bulk Certificate Upload</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">How to Use Bulk Upload</h5>
+                    <p>This tool allows you to upload many certificates at once. Please follow these steps carefully:
+                    </p>
+                    <ol>
+                        <li><strong>Prepare Your Files:</strong> Create a folder on your computer containing all the
+                            certificate files (PDFs, images, etc.).</li>
+                        <li><strong>Prepare Your Metadata:</strong> Download our CSV template and fill it out. Each row
+                            represents one certificate. The `filename` column must exactly match the name of the
+                            corresponding file in your folder.</li>
+                        <li><strong>Create a ZIP File:</strong> Compress the folder containing all your certificate
+                            files into a single `.zip` file.</li>
+                        <li><strong>Upload Both Files:</strong> Use the form below to upload your completed CSV file and
+                            the new ZIP file.</li>
+                    </ol>
+                    <!-- Corrected version -->
+                    <a href="/static/bulk_upload_template.csv" class="btn btn-sm btn-outline-primary" download>
+                        <i class="fas fa-download me-1"></i>Download CSV Template
+                    </a>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="metadata_file" class="form-label">Step 1: Upload Metadata (CSV File)</label>
+                        <input type="file" class="form-control" id="metadata_file" name="metadata_file" accept=".csv"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="certificates_zip" class="form-label">Step 2: Upload Certificate Files (ZIP
+                            Archive)</label>
+                        <input type="file" class="form-control" id="certificates_zip" name="certificates_zip"
+                            accept=".zip" required>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-cogs me-1"></i>Start Bulk Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

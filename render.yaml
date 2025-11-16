@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: certverify
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: certverify-db
+          property: connectionString
+  - type: pserv
+    name: certverify-db
+    env: postgresql
+    plan: free
+    databaseName: certverify
+    user: certverify_user

@@ -2,6 +2,7 @@ import os
 import hashlib
 import secrets
 import qrcode
+import string
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
@@ -15,9 +16,11 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def generate_certificate_id():
+def generate_certificate_id(length=12):
     """Generate a unique certificate ID"""
-    return secrets.token_hex(16).upper()
+    # This uses all uppercase letters (A-Z) and digits (0-9)
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(alphabet) for i in range(length))
 
 def calculate_file_hash(file_path):
     """Calculate SHA-256 hash of a file"""
@@ -72,6 +75,11 @@ def verify_certificate_integrity(certificate):
         return False
     
     current_hash = calculate_file_hash(certificate.file_path)
+    print("--- INTEGRITY CHECK ---")
+    print(f"  Original Hash (from DB): {certificate.file_hash}")
+    print(f"  Current Hash (from File): {current_hash}")
+    print(f"  Do they match? {current_hash == certificate.file_hash}")
+    print("-------------------------")
     return current_hash == certificate.file_hash
 
 def create_blockchain_block():
@@ -118,3 +126,34 @@ def get_blockchain_info():
         'last_block_hash': last_block.block_hash if last_block else None,
         'last_block_time': last_block.timestamp if last_block else None
     }
+
+# In utils.py
+
+# Add this import at the very top of the file
+import re
+
+# ... (keep all your other existing functions like generate_certificate_id, etc.) ...
+
+
+# --- ADD THIS NEW FUNCTION AT THE END OF THE FILE ---
+
+def is_strong_password(password):
+    """
+    Checks if a password meets the strength requirements:
+    - At least 8 characters long
+    - Contains at least one uppercase letter
+    - Contains at least one lowercase letter
+    - Contains at least one number
+    - Contains at least one special character
+    """
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[a-z]", password):
+        return False
+    if not re.search(r"[0-9]", password):
+        return False
+    if not re.search(r"[!@#$%^&*()_+-=\[\]{};':\"\\|,.<>\/?]", password):
+        return False
+    return True

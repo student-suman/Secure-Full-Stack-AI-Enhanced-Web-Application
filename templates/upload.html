@@ -73,6 +73,16 @@
                             Supported formats: PDF, PNG, JPG, JPEG, GIF (Max size: 16MB)
                         </small>
                     </div>
+
+                    <!-- START: This is the new AI Scan Button -->
+                    <div class="text-center mb-4">
+                        <button type="button" class="btn btn-info" id="scan-ai-button">
+                            <i class="fas fa-robot me-2"></i>Scan with AI to Auto-Fill
+                            <span class="spinner-border spinner-border-sm ms-2 d-none" id="ai-spinner" role="status"></span>
+                        </button>
+                    </div>
+                    <hr class="mb-4">
+                    <!-- END: AI Scan Button -->
                     
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary" id="submitBtn">
@@ -102,6 +112,7 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Your existing script for the dropzone -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const dropzone = document.getElementById('dropzone');
@@ -111,19 +122,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('uploadForm');
     const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
 
-    // Dropzone click handler
     dropzone.addEventListener('click', function() {
         fileInput.click();
     });
 
-    // File input change handler
     fileInput.addEventListener('change', function() {
         if (this.files.length > 0) {
             showFilePreview(this.files[0]);
         }
     });
 
-    // Drag and drop handlers
     dropzone.addEventListener('dragover', function(e) {
         e.preventDefault();
         dropzone.classList.add('dragover');
@@ -145,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Form submit handler
     form.addEventListener('submit', function() {
         processingModal.show();
     });
@@ -176,4 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 </script>
+
+<!-- The new script for the AI scanner -->
+<script src="{{ url_for('static', filename='js/ai_scanner.js') }}"></script>
 {% endblock %}

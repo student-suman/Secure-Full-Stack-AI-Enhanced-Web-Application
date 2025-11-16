@@ -2,40 +2,65 @@
 
 {% block title %}Register - Certificate Verification System{% endblock %}
 
+{% block styles %}
+<style>
+    #password-requirements {
+        font-size: 0.9em;
+        color: #adb5bd;
+        transition: color 0.3s ease;
+    }
+    #password-requirements p {
+        margin-bottom: 0.25rem;
+        transition: color 0.3s ease;
+    }
+    #password-requirements p.valid {
+        color: #198754; /* Green for valid */
+    }
+    #password-requirements p.invalid {
+        color: #dc3545; /* Red for invalid */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
         <div class="card">
             <div class="card-header text-center">
-                <h4><i class="fas fa-user-plus me-2"></i>Register</h4>
+                <h4><i class="fas fa-user-plus me-2"></i>Create an Account</h4>
             </div>
             <div class="card-body">
                 <form method="POST">
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ username or '' }}" required>
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}" required>
                     </div>
-                    
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required>
+                        
+                        <!-- START: Password Requirements Checklist -->
+                        <div id="password-requirements" class="mt-2">
+                            <p id="length" class="invalid">At least 8 characters</p>
+                            <p id="lowercase" class="invalid">A lowercase letter</p>
+                            <p id="uppercase" class="invalid">An uppercase letter</p>
+                            <p id="number" class="invalid">A number</p>
+                            <p id="special" class="invalid">A special character (!@#...)</p>
+                        </div>
+                        <!-- END: Password Requirements Checklist -->
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="role" class="form-label">Role</label>
+                        <label for="role" class="form-label">I am a...</label>
                         <select class="form-select" id="role" name="role" required>
-                            <option value="">Select your role</option>
-                            <option value="admin">University Administrator</option>
-                            <option value="student">Student</option>
-                            <option value="recruiter">Recruiter</option>
+                            <option value="student" {% if role == 'student' %}selected{% endif %}>Student</option>
+                            <option value="recruiter" {% if role == 'recruiter' %}selected{% endif %}>Recruiter</option>
+                            <option value="admin" {% if role == 'admin' %}selected{% endif %}>University Administrator</option>
                         </select>
                     </div>
-                    
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-user-plus me-1"></i>Register
@@ -49,4 +74,46 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const lengthCheck = document.getElementById('length');
+    const lowercaseCheck = document.getElementById('lowercase');
+    const uppercaseCheck = document.getElementById('uppercase');
+    const numberCheck = document.getElementById('number');
+    const specialCheck = document.getElementById('special');
+
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+
+        // Length check
+        updateRequirement(lengthCheck, password.length >= 8);
+        
+        // Lowercase check
+        updateRequirement(lowercaseCheck, /[a-z]/.test(password));
+
+        // Uppercase check
+        updateRequirement(uppercaseCheck, /[A-Z]/.test(password));
+
+        // Number check
+        updateRequirement(numberCheck, /[0-9]/.test(password));
+
+        // Special character check
+        updateRequirement(specialCheck, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password));
+    });
+
+    function updateRequirement(element, isValid) {
+        if (isValid) {
+            element.classList.remove('invalid');
+            element.classList.add('valid');
+        } else {
+            element.classList.remove('valid');
+            element.classList.add('invalid');
+        }
+    }
+});
+</script>
 {% endblock %}
