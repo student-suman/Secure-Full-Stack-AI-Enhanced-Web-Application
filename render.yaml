@@ -9,13 +9,8 @@ services:
         value: 3.11.0
       - key: SESSION_SECRET
         generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: certverify-db
-          property: connectionString
-  - type: pserv
-    name: certverify-db
-    env: postgresql
-    plan: free
+
+databases:
+  - name: certverify-db
     databaseName: certverify
     user: certverify_user
